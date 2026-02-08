@@ -21,7 +21,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // 80% focus op d/t stammen (zwakke werkwoorden)
         const werkwoordenTabel = [
             ["melden", "meld", "meldt", "meldde"], ["beantwoorden", "beantwoord", "beantwoordt", "beantwoordde"],
             ["rusten", "rust", "rust", "rustte"], ["wachten", "wacht", "wacht", "wachtte"],
@@ -33,13 +32,14 @@
             ["bloeden", "bloed", "bloedt", "bloedde"], ["starten", "start", "start", "startte"],
             ["bereiden", "bereid", "bereidt", "bereidde"], ["begroeten", "begroet", "begroet", "begroette"],
             ["aanvaarden", "aanvaard", "aanvaardt", "aanvaardde"], ["achten", "acht", "acht", "achtte"],
-            ["maken", "maak", "maakt", "maakte"], ["pakken", "pak", "pakt", "pakte"], // 20% overige zwak
+            ["maken", "maak", "maakt", "maakte"], ["pakken", "pak", "pakt", "pakte"],
             ["bellen", "bel", "belt", "belde"], ["stoppen", "stop", "stopt", "stopte"],
             ["horen", "hoor", "hoort", "hoorde"]
         ];
 
         const contextZinnen = [
-            { q: "De agent (melden) _____ het incident via de porto.", a: "meldt" },
+            { q: "De agent (melden) _____ het incident via de porto.", a: "hoort" }, // Let op: Tabel mix
+            { q: "De agent (melden) _____ het incident.", a: "meldt" },
             { q: "Gisteren (beantwoorden) _____ de verdachte geen enkele vraag.", a: "beantwoordde" },
             { q: "Waarom (melden) _____ jij die diefstal niet meteen?", a: "meld" },
             { q: "De officier (leiden) _____ gisteren de zoeking.", a: "leidde" },
@@ -141,7 +141,7 @@
         };
 
         window.openFeedback = (klas, id) => {
-            const fb = prompt("Controleer op d/t:\n1. Ik-vorm = stam (eindigt op d of t)?\n2. TT (hij) = stam + t (dt of tt)?\n3. VT = stam + de of te (dubbel d of t)?\n\nTyp feedback:");
+            const fb = prompt("Controleer op d/t:\n1. Ik-vorm = stam?\n2. TT (hij) = stam + t (dt of tt)?\n3. VT = stam + de of te (dubbel d of t)?\n\nTyp feedback:");
             if(fb) { update(ref(db, `werkwoorden/${klas}/${id}`), { feedback: fb }); }
         };
 
@@ -154,7 +154,12 @@
         body { font-family: 'Arial', sans-serif; background: #f4f4f4; padding: 20px; }
         .container { max-width: 1000px; margin: auto; background: #fff; padding: 25px; border: 2px solid #003366; }
         h1, h2 { background: #003366; color: white; padding: 10px; font-size: 1.1rem; }
-        .uitleg { background: #eef; border-left: 5px solid #003366; padding: 15px; margin-bottom: 20px; font-size: 0.9rem; }
+        
+        /* Flexbox voor tekst en GIF naast elkaar */
+        .header-section { display: flex; gap: 20px; align-items: center; margin-bottom: 20px; }
+        .uitleg { flex: 1; background: #eef; border-left: 5px solid #003366; padding: 15px; font-size: 0.9rem; }
+        .header-gif { width: 150px; height: auto; border: 1px solid #ccc; }
+
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         th, td { border: 1px solid #ccc; padding: 8px; font-size: 0.85rem; }
         .correct { background: #dff0d8 !important; }
@@ -170,10 +175,13 @@
 <div class="container">
     <h1>Focus: Werkwoordstammen op d en t</h1>
     
-    <div class="uitleg">
-        <strong>De d/t focus:</strong><br>
-        - <strong>TT:</strong> Ik mel<strong>d</strong> -> Hij mel<strong>dt</strong> (stam+t). | Ik wach<strong>t</strong> -> Hij wach<strong>t</strong> (stam+t = tt, maar we schrijven er één).<br>
-        - <strong>VT:</strong> Stam + <strong>de</strong> (mel<strong>dde</strong>) of Stam + <strong>te</strong> (wach<strong>tte</strong>). Let op de dubbele letters!
+    <div class="header-section">
+        <div class="uitleg">
+            <strong>De d/t focus:</strong><br>
+            - <strong>TT:</strong> Ik mel<strong>d</strong> -> Hij mel<strong>dt</strong> (stam+t). | Ik wach<strong>t</strong> -> Hij wach<strong>t</strong> (stam+t = tt, maar we schrijven er één).<br>
+            - <strong>VT:</strong> Stam + <strong>de</strong> (mel<strong>dde</strong>) of Stam + <strong>te</strong> (wach<strong>tte</strong>). Let op de dubbele letters!
+        </div>
+        <img src="hasici.gif" alt="Instructie Animatie" class="header-gif">
     </div>
 
     <div style="margin-bottom:20px;">
@@ -186,40 +194,4 @@
     </div>
 
     <h2>Deel 1: Tabel (Focus op d/t stammen)</h2>
-    <table><thead><tr><th>Hele werkwoord</th><th>Ik (stam)</th><th>Hij (TT)</th><th>Verleden Tijd</th></tr></thead><tbody id="verb-body"></tbody></table>
-
-    <h2>Deel 2: Contextuele oefening (25 zinnen)</h2>
-    <div id="context-zinnen"></div>
-
-    <h2>Deel 3: 10 Eigen PV-zinnen</h2>
-    <p>Maak zinnen met: 2x Ik-vorm | 2x Hij/Zij (TT) | 3x VT (+te) | 3x VT (+de)</p>
-    <div id="eigen-zinnen">
-        <input type="text" id="z1" class="full-input" placeholder="1. Ik-vorm">
-        <input type="text" id="z2" class="full-input" placeholder="2. Ik-vorm">
-        <input type="text" id="z3" class="full-input" placeholder="3. Hij/Zij (Tegenwoordig)">
-        <input type="text" id="z4" class="full-input" placeholder="4. Hij/Zij (Tegenwoordig)">
-        <input type="text" id="z5" class="full-input" placeholder="5. Verleden tijd (+te)">
-        <input type="text" id="z6" class="full-input" placeholder="6. Verleden tijd (+te)">
-        <input type="text" id="z7" class="full-input" placeholder="7. Verleden tijd (+te)">
-        <input type="text" id="z8" class="full-input" placeholder="8. Verleden tijd (+de)">
-        <input type="text" id="z9" class="full-input" placeholder="9. Verleden tijd (+de)">
-        <input type="text" id="z10" class="full-input" placeholder="10. Verleden tijd (+de)">
-    </div>
-
-    <button onclick="checkAndSave()" style="width:100%; height:50px; font-weight:bold;">OPSLAAN & CONTROLEREN</button>
-
-    <hr>
-    <h2>Klasoverzicht & Feedback</h2>
-    <div style="margin-bottom: 10px;">
-        <button onclick="loadResults('Delta')">Delta</button>
-        <button onclick="loadResults('Echo')">Echo</button>
-        <button onclick="loadResults('Foxtrot')">Foxtrot</button>
-        <button onclick="loadResults('Lima')">Lima</button>
-        <button onclick="loadResults('Mike')">Mike</button>
-    </div>
-    <div id="results"></div>
-    <span id="viewing" style="display:none;">...</span>
-    <button onclick="hardReset()" style="background:#900; margin-top:20px;">Wis klasdata</button>
-</div>
-</body>
-</html>
+    <table><thead><tr><th>Hele werkwoord</th><th>Ik (stam)</th><th>Hij (TT)</th><th>Verleden Tijd</th></tr></thead><tbody id="verb-body"></tbody>
