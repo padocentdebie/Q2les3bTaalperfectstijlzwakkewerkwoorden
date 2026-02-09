@@ -25,6 +25,7 @@
             ["melden", "meld", "meldt", "meldde"], 
             ["beantwoorden", "beantwoord", "beantwoordt", "beantwoordde"],
             ["misten", "mist", "mist", "mistte"],
+            ["blussen", "blus", "blust", "bluste"],
             ["rusten", "rust", "rust", "rustte"], 
             ["wachten", "wacht", "wacht", "wachtte"],
             ["landen", "land", "landt", "landde"], 
@@ -39,6 +40,7 @@
             { q: "De agent (melden, TT, hij-vorm) _____ het incident nu via de porto.", a: "meldt" },
             { q: "Gisteren (beantwoorden, VT, hij-vorm) _____ de verdachte de vraag niet.", a: "beantwoordde" },
             { q: "Toen we de snelweg opreden (misten, VT, het-vorm) _____ het heel erg.", a: "mistte" },
+            { q: "De brandweer (blussen, VT, hij-vorm) _____ de brand gisteravond snel.", a: "bluste" },
             { q: "De officier (leiden, VT, hij-vorm) _____ vorig jaar het onderzoek.", a: "leidde" },
             { q: "Ik (wachten, TT, ik-vorm) _____ al een uur op de back-up.", a: "wacht" },
             { q: "Jij (wachten, VT, jij-vorm) _____ gisteren te lang op assistentie.", a: "wachtte" },
@@ -108,7 +110,7 @@
             onValue(ref(db, 'werkwoorden/' + c), (s) => {
                 const d = s.val();
                 const resDiv = document.getElementById('results');
-                resDiv.innerHTML = d ? "" : "Nog geen resultaten gevonden.";
+                resDiv.innerHTML = d ? "" : "Nog geen resultaten.";
                 for(let k in d) {
                     let fbHtml = d[k].feedback ? `<div class="feedback-box"><strong>Feedback:</strong><br>${d[k].feedback.replace(/\n/g, '<br>')}</div>` : 
                         `<button onclick="openFeedback('${c}', '${k}')">Geef Feedback aan ${d[k].student}</button>`;
@@ -174,8 +176,8 @@
         <div class="uitleg">
             <strong>Focus op werkwoordstammen op d en t:</strong><br>
             • <strong>Tegenwoordige Tijd (TT):</strong> Stam + t. (Ik mel<strong>d</strong>, hij mel<strong>dt</strong>).<br>
-            • <strong>Verleden Tijd (VT):</strong> Stam + de/te. (Mel<strong>dde</strong>, wach<strong>tte</strong>, mis<strong>tte</strong>).<br>
-            <em>Let op de dubbele medeklinkers in de verleden tijd!</em>
+            • <strong>Verleden Tijd (VT):</strong> Stam + de/te. (Mel<strong>dde</strong>, wach<strong>tte</strong>, blus<strong>te</strong>).<br>
+            <em>Let op: Bij blussen is de stam 'blus'. De 's' zit in 't kofschip, dus +te!</em>
         </div>
         <img src="1740073406664.gif" alt="Instructie" class="header-gif">
     </div>
