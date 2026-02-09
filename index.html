@@ -24,7 +24,7 @@
         const werkwoordenTabel = [
             ["melden", "meld", "meldt", "meldde"], 
             ["beantwoorden", "beantwoord", "beantwoordt", "beantwoordde"],
-            ["misten", "mist", "mist", "mistte"], // Nieuw toegevoegd
+            ["misten", "mist", "mist", "mistte"],
             ["rusten", "rust", "rust", "rustte"], 
             ["wachten", "wacht", "wacht", "wachtte"],
             ["landen", "land", "landt", "landde"], 
@@ -36,17 +36,19 @@
         ];
 
         const contextZinnen = [
-            { q: "De agent (melden) _____ het incident nu via de porto.", a: "meldt" },
-            { q: "Gisteren (beantwoorden) _____ de verdachte de vraag niet.", a: "beantwoordde" },
-            { q: "Toen we de snelweg opreden (misten) _____ het heel erg.", a: "mistte" }, // Verleden tijd
-            { q: "De officier (leiden) _____ vorig jaar het onderzoek.", a: "leidde" },
-            { q: "Jij (wachten) _____ gisteren te lang op assistentie.", a: "wachtte" },
-            { q: "De verdachte (vermoeden) _____ destijds al een valstrik.", a: "vermoedde" },
-            { q: "De rechercheur (beantwoorden) _____ op dit moment de mail.", a: "beantwoordt" },
-            { q: "Vorig jaar (landen) _____ de helikopter in het park.", a: "landde" },
-            { q: "De agent (zetten) _____ de handboeien gisteren strak aan.", a: "zette" },
-            { q: "De verdachte (pleiten) _____ zojuist onschuldig.", a: "pleit" },
-            { q: "Gisteren (branden) _____ er nog licht in de verhoorkamer.", a: "brandde" }
+            { q: "De agent (melden, TT, hij-vorm) _____ het incident nu via de porto.", a: "meldt" },
+            { q: "Gisteren (beantwoorden, VT, hij-vorm) _____ de verdachte de vraag niet.", a: "beantwoordde" },
+            { q: "Toen we de snelweg opreden (misten, VT, het-vorm) _____ het heel erg.", a: "mistte" },
+            { q: "De officier (leiden, VT, hij-vorm) _____ vorig jaar het onderzoek.", a: "leidde" },
+            { q: "Ik (wachten, TT, ik-vorm) _____ al een uur op de back-up.", a: "wacht" },
+            { q: "Jij (wachten, VT, jij-vorm) _____ gisteren te lang op assistentie.", a: "wachtte" },
+            { q: "De verdachte (vermoeden, VT, hij-vorm) _____ destijds al een valstrik.", a: "vermoedde" },
+            { q: "De rechercheur (beantwoorden, TT, hij-vorm) _____ op dit moment de mail.", a: "beantwoordt" },
+            { q: "Vorig jaar (landen, VT, hij-vorm) _____ de helikopter in het park.", a: "landde" },
+            { q: "De agent (zetten, VT, hij-vorm) _____ de handboeien gisteren strak aan.", a: "zette" },
+            { q: "De verdachte (pleiten, TT, hij-vorm) _____ zojuist onschuldig.", a: "pleit" },
+            { q: "Gisteren (branden, VT, het-vorm) _____ er nog licht in de verhoorkamer.", a: "brandde" },
+            { q: "Ik (melden, TT, ik-vorm) _____ mij morgen bij de hoofdinspecteur.", a: "meld" }
         ];
 
         window.onload = () => {
@@ -79,7 +81,7 @@
         window.checkAndSave = function() {
             const className = document.getElementById('selectedClass').value;
             const firstName = document.getElementById('firstName').value;
-            if(!firstName) { alert("Vul je voornaam in!"); return; }
+            if(!firstName) { alert("Vul eerst je voornaam in!"); return; }
 
             let correct = 0; let total = 0;
             document.querySelectorAll('input[data-correct]').forEach(input => {
@@ -98,7 +100,7 @@
                 zinnen: eigenZinnen,
                 feedback: null,
                 timestamp: Date.now()
-            }).then(() => alert(`Goed gedaan ${firstName}! Je werk is opgeslagen.`));
+            }).then(() => alert(`Opgeslagen! Bedankt ${firstName}. Je klasgenoten kunnen nu feedback geven.`));
         };
 
         window.loadResults = (c) => {
@@ -106,7 +108,7 @@
             onValue(ref(db, 'werkwoorden/' + c), (s) => {
                 const d = s.val();
                 const resDiv = document.getElementById('results');
-                resDiv.innerHTML = d ? "" : "Nog geen resultaten.";
+                resDiv.innerHTML = d ? "" : "Nog geen resultaten gevonden voor deze klas.";
                 for(let k in d) {
                     let fbHtml = d[k].feedback ? `<div class="feedback-box"><strong>Feedback:</strong><br>${d[k].feedback.replace(/\n/g, '<br>')}</div>` : 
                         `<button onclick="openFeedback('${c}', '${k}')">Geef Feedback aan ${d[k].student}</button>`;
@@ -125,7 +127,7 @@
 
         window.openFeedback = (klas, id) => {
             const checklistTemplate = "CHECKLIST:\n[ ] Stam+t bij TT gebruikt?\n[ ] Stam+de/te bij VT gebruikt?\n[ ] Dubbel d/t gecheckt?\n\nTip: ";
-            const fb = prompt("Typ 'X' bij wat goed is en geef een tip:", checklistTemplate);
+            const fb = prompt("Beoordeel het werk van je klasgenoot:\n(Zet een X in de hokjes)", checklistTemplate);
             if(fb && fb !== checklistTemplate) { 
                 update(ref(db, `werkwoorden/${klas}/${id}`), { feedback: fb }); 
             }
@@ -133,60 +135,71 @@
 
         window.hardReset = () => {
             const c = document.getElementById('viewing').innerText;
-            if(c === "...") { alert("Kies eerst een klas."); return; }
-            if(confirm(`Alle gegevens van klas ${c} wissen?`)) { 
-                remove(ref(db, 'werkwoorden/' + c)).then(() => alert("Gewist."));
+            if(c === "...") { alert("Selecteer eerst een klas die je wilt legen."); return; }
+            if(confirm(`LET OP: Alle namen, scores en feedback van klas ${c} worden definitief verwijderd. Doorgaan?`)) { 
+                remove(ref(db, 'werkwoorden/' + c)).then(() => alert("De database voor deze klas is nu leeg."));
             }
         };
     </script>
     <style>
-        body { font-family: 'Arial', sans-serif; background: #f4f4f4; padding: 20px; }
-        .container { max-width: 1000px; margin: auto; background: #fff; padding: 25px; border: 2px solid #003366; border-radius: 8px; }
-        h1, h2 { background: #003366; color: white; padding: 10px; font-size: 1.1rem; border-radius: 4px; }
-        .header-section { display: flex; gap: 20px; align-items: center; margin-bottom: 20px; }
-        .uitleg { flex: 1; background: #eef; border-left: 5px solid #003366; padding: 15px; font-size: 0.9rem; }
-        .header-gif { width: 150px; height: auto; border: 1px solid #ccc; border-radius: 8px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        .correct { background: #dff0d8 !important; border-color: #3c763d; }
-        .incorrect { background: #f2dede !important; border-color: #a94442; }
-        .res-card { border: 1px solid #003366; margin: 15px 0; background: #fafafa; padding: 10px; }
-        .feedback-box { background: #d9edf7; padding: 12px; margin: 10px; border: 1px solid #bce8f1; font-style: italic; }
-        button { background: #003366; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; }
-        .btn-danger { background: #cc0000; margin-top: 20px; }
-        .full-input { width: 98%; margin-bottom: 8px; padding: 8px; border: 1px solid #999; }
-        .sentence-row { margin-bottom: 10px; padding: 5px; border-bottom: 1px solid #eee; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: auto; background: #fff; padding: 30px; border: 2px solid #003366; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h1, h2 { background: #003366; color: white; padding: 15px; font-size: 1.25rem; border-radius: 6px; margin-top: 35px; }
+        h1 { margin-top: 0; text-align: center; }
+        .header-section { display: flex; gap: 20px; align-items: center; margin-bottom: 25px; background: #f9fbff; padding: 15px; border-radius: 10px; border: 1px solid #d0d7de; }
+        .uitleg { flex: 1; font-size: 1rem; line-height: 1.6; }
+        .header-gif { width: 150px; height: auto; border-radius: 8px; border: 2px solid #003366; }
+        .login-box { background: #e7efff; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #00336620; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: #fff; }
+        th, td { border: 1px solid #cbd5e0; padding: 12px; text-align: left; }
+        th { background: #edf2f7; font-weight: bold; }
+        .correct { background: #c6f6d5 !important; border-color: #38a169; }
+        .incorrect { background: #fed7d7 !important; border-color: #e53e3e; }
+        .res-card { border: 1px solid #003366; margin: 20px 0; background: #fff; border-radius: 8px; overflow: hidden; }
+        .card-header { background: #00336608; padding: 12px; border-bottom: 1px solid #00336615; font-weight: bold; }
+        .student-sentences { padding: 15px; font-size: 0.9rem; line-height: 1.7; color: #4a5568; }
+        .feedback-box { background: #ebf8ff; padding: 15px; margin: 15px; border: 1px solid #bee3f8; font-style: italic; border-radius: 6px; color: #2b6cb0; }
+        button { background: #003366; color: white; border: none; padding: 12px 24px; cursor: pointer; border-radius: 6px; font-weight: bold; transition: 0.2s; }
+        button:hover { background: #0055aa; transform: translateY(-1px); }
+        .btn-danger { background: #e53e3e; margin-top: 50px; font-size: 0.85rem; opacity: 0.8; }
+        .btn-danger:hover { background: #c53030; opacity: 1; }
+        .full-input { width: 100%; margin-bottom: 12px; padding: 12px; border: 1px solid #a0aec0; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
+        .context-input { width: 140px; padding: 6px; border-radius: 4px; border: 1px solid #a0aec0; margin-left: 10px; }
+        .sentence-row { margin-bottom: 15px; padding: 10px; border-bottom: 1px solid #edf2f7; display: flex; align-items: center; justify-content: space-between; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>Focus: Werkwoordstammen op d en t</h1>
+    <h1>Politieschool: Taalvaardigheid d/t</h1>
     
     <div class="header-section">
         <div class="uitleg">
-            <strong>De d/t focus:</strong><br>
-            - <strong>Tegenwoordige Tijd:</strong> Ik mel<strong>d</strong> -> Hij mel<strong>dt</strong> (stam+t).<br>
-            - <strong>Verleden Tijd:</strong> Stam + <strong>de</strong> (mel<strong>dde</strong>) of Stam + <strong>te</strong> (wach<strong>tte</strong> / mis<strong>tte</strong>).
+            <strong>Focus op werkwoordstammen op d en t:</strong><br>
+            • <strong>Tegenwoordige Tijd (TT):</strong> Stam + t. (Ik mel<strong>d</strong>, hij mel<strong>dt</strong>).<br>
+            • <strong>Verleden Tijd (VT):</strong> Stam + de/te. (Mel<strong>dde</strong>, wach<strong>tte</strong>, mis<strong>tte</strong>).<br>
+            <em>Let goed op de dubbele medeklinkers in de verleden tijd!</em>
         </div>
         <img src="1740073406664.gif" alt="Instructie" class="header-gif">
     </div>
 
-    <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-        Voornaam: <input type="text" id="firstName" placeholder="Naam..." style="width: 200px;">
-        Klas: <select id="selectedClass">
+    <div class="login-box">
+        <strong>Identificatie:</strong><br><br>
+        Voornaam: <input type="text" id="firstName" placeholder="Typ je naam..." style="width: 200px; padding: 10px;">
+        Klas: <select id="selectedClass" style="padding: 10px;">
             <option value="Delta">Delta</option><option value="Echo">Echo</option>
             <option value="Foxtrot">Foxtrot</option><option value="Lima">Lima</option>
             <option value="Mike">Mike</option>
         </select>
     </div>
 
-    <h2>Deel 1: De Stam-tabel</h2>
-    <table><thead><tr><th>Hele werkwoord</th><th>Ik (stam)</th><th>Hij (TT)</th><th>Verleden Tijd</th></tr></thead><tbody id="verb-body"></tbody></table>
+    <h2>Deel 1: De Stam-tabel invullen</h2>
+    <table><thead><tr><th>Hele werkwoord</th><th>Ik (stam)</th><th>Hij (TT)</th><th>Verleden Tijd (enkelvoud)</th></tr></thead><tbody id="verb-body"></tbody></table>
 
-    <h2>Deel 2: Context Zinnen</h2>
+    <h2>Deel 2: Context Zinnen (Let op de instructie tussen haakjes)</h2>
     <div id="context-zinnen"></div>
 
-    <h2>Deel 3: Eigen PV-zinnen</h2>
+    <h2>Deel 3: Eigen PV-zinnen (Wissel af tussen VT en TT)</h2>
+    <p><small>Schrijf 10 volledige zinnen met de werkwoorden uit de tabel.</small></p>
     <div id="eigen-zinnen">
         <input type="text" id="z1" class="full-input" placeholder="Zin 1">
         <input type="text" id="z2" class="full-input" placeholder="Zin 2">
@@ -200,18 +213,23 @@
         <input type="text" id="z10" class="full-input" placeholder="Zin 10">
     </div>
 
-    <button onclick="checkAndSave()" style="width: 100%; font-weight: bold; padding: 15px; margin-top: 10px;">OPSLAAN</button>
+    <button onclick="checkAndSave()" style="width: 100%; font-size: 1.2rem; margin-top: 10px;">OPSLAAN EN CONTROLEREN</button>
 
-    <hr style="margin: 40px 0;">
-    <h2>Feedback</h2>
-    <button onclick="loadResults('Delta')">Delta</button>
-    <button onclick="loadResults('Echo')">Echo</button>
-    <button onclick="loadResults('Foxtrot')">Foxtrot</button>
-    <button onclick="loadResults('Lima')">Lima</button>
-    <button onclick="loadResults('Mike')">Mike</button>
-    <h3>Klas: <span id="viewing">...</span></h3>
-    <div id="results"></div>
-    <button onclick="hardReset()" class="btn-danger">Wis Klas Gegevens</button>
+    <hr style="margin: 60px 0; border: 0; border-top: 2px dashed #cbd5e0;">
+    
+    <h2>Feedback Portaal</h2>
+    <p>Selecteer een klas om de resultaten te bekijken en feedback te geven aan je collega's:</p>
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+        <button onclick="loadResults('Delta')">Delta</button>
+        <button onclick="loadResults('Echo')">Echo</button>
+        <button onclick="loadResults('Foxtrot')">Foxtrot</button>
+        <button onclick="loadResults('Lima')">Lima</button>
+        <button onclick="loadResults('Mike')">Mike</button>
+    </div>
+    <h3>Resultaten voor klas: <span id="viewing" style="color: #003366;">...</span></h3>
+    <div id="results">Kies een klas om de lijst te laden.</div>
+
+    <button onclick="hardReset()" class="btn-danger">WIS ALLE GEGEVENS VAN DEZE KLAS</button>
 </div>
 </body>
 </html>
