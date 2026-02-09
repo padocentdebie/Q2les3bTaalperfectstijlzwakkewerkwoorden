@@ -102,7 +102,7 @@
                 zinnen: eigenZinnen,
                 feedback: null,
                 timestamp: Date.now()
-            }).then(() => alert(`Opgeslagen! Bedankt ${firstName}.`));
+            }).then(() => alert(`Opgeslagen! Bedankt ${firstName}. Je kunt nu feedback geven.`));
         };
 
         window.loadResults = (c) => {
@@ -110,7 +110,7 @@
             onValue(ref(db, 'werkwoorden/' + c), (s) => {
                 const d = s.val();
                 const resDiv = document.getElementById('results');
-                resDiv.innerHTML = d ? "" : "Nog geen resultaten.";
+                resDiv.innerHTML = d ? "" : "Nog geen resultaten gevonden voor deze klas.";
                 for(let k in d) {
                     let fbHtml = d[k].feedback ? `<div class="feedback-box"><strong>Feedback:</strong><br>${d[k].feedback.replace(/\n/g, '<br>')}</div>` : 
                         `<button onclick="openFeedback('${c}', '${k}')">Geef Feedback aan ${d[k].student}</button>`;
@@ -129,7 +129,7 @@
 
         window.openFeedback = (klas, id) => {
             const checklistTemplate = "CHECKLIST:\n[ ] Stam+t bij TT gebruikt?\n[ ] Stam+de/te bij VT gebruikt?\n[ ] Dubbel d/t gecheckt?\n\nTip: ";
-            const fb = prompt("Feedback geven (Zet een X in de vakjes):", checklistTemplate);
+            const fb = prompt("Feedback voor je collega (Zet een X in de hokjes):", checklistTemplate);
             if(fb && fb !== checklistTemplate) { 
                 update(ref(db, `werkwoorden/${klas}/${id}`), { feedback: fb }); 
             }
@@ -139,33 +139,33 @@
             const c = document.getElementById('viewing').innerText;
             if(c === "...") { alert("Kies eerst een klas."); return; }
             if(confirm(`Alle gegevens van klas ${c} wissen?`)) { 
-                remove(ref(db, 'werkwoorden/' + c)).then(() => alert("Gewist."));
+                remove(ref(db, 'werkwoorden/' + c)).then(() => alert("De database voor deze klas is leeg."));
             }
         };
     </script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
-        .container { max-width: 1000px; margin: auto; background: #fff; padding: 30px; border: 2px solid #003366; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1, h2 { background: #003366; color: white; padding: 12px; font-size: 1.2rem; border-radius: 6px; margin-top: 30px; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: auto; background: #fff; padding: 30px; border: 2px solid #003366; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h1, h2 { background: #003366; color: white; padding: 15px; font-size: 1.25rem; border-radius: 6px; margin-top: 35px; }
         h1 { margin-top: 0; text-align: center; }
         .header-section { display: flex; gap: 20px; align-items: center; margin-bottom: 25px; background: #f9fbff; padding: 15px; border-radius: 10px; border: 1px solid #d0d7de; }
-        .uitleg { flex: 1; font-size: 0.95rem; line-height: 1.5; }
+        .uitleg { flex: 1; font-size: 1rem; line-height: 1.6; }
         .header-gif { width: 150px; height: auto; border-radius: 8px; border: 2px solid #003366; }
-        .login-box { background: #e7efff; padding: 15px; border-radius: 8px; margin-bottom: 25px; }
+        .login-box { background: #e7efff; padding: 20px; border-radius: 8px; margin-bottom: 25px; }
         table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #cbd5e0; padding: 10px; text-align: left; }
-        th { background: #edf2f7; }
+        th, td { border: 1px solid #cbd5e0; padding: 12px; text-align: left; }
+        th { background: #edf2f7; font-weight: bold; }
         .correct { background: #c6f6d5 !important; border-color: #38a169; }
         .incorrect { background: #fed7d7 !important; border-color: #e53e3e; }
-        .res-card { border: 1px solid #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
-        .card-header { background: #00336610; padding: 10px; font-weight: bold; }
-        .student-sentences { padding: 15px; font-size: 0.9rem; line-height: 1.6; }
-        .feedback-box { background: #ebf8ff; padding: 12px; margin: 10px; border: 1px solid #bee3f8; font-style: italic; border-radius: 6px; }
-        button { background: #003366; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 6px; font-weight: bold; }
-        .btn-danger { background: #e53e3e; margin-top: 40px; }
-        .full-input { width: 100%; margin-bottom: 10px; padding: 10px; border: 1px solid #a0aec0; border-radius: 6px; box-sizing: border-box; }
-        .context-input { width: 150px; padding: 6px; border-radius: 4px; border: 1px solid #a0aec0; }
-        .sentence-row { margin-bottom: 12px; padding: 10px; border-bottom: 1px solid #edf2f7; display: flex; align-items: center; justify-content: space-between; }
+        .res-card { border: 1px solid #003366; margin: 20px 0; background: #fff; border-radius: 8px; overflow: hidden; }
+        .card-header { background: #00336608; padding: 12px; border-bottom: 1px solid #00336615; font-weight: bold; }
+        .student-sentences { padding: 15px; font-size: 0.9rem; line-height: 1.7; }
+        .feedback-box { background: #ebf8ff; padding: 15px; margin: 15px; border: 1px solid #bee3f8; font-style: italic; border-radius: 6px; }
+        button { background: #003366; color: white; border: none; padding: 12px 24px; cursor: pointer; border-radius: 6px; font-weight: bold; }
+        .btn-danger { background: #e53e3e; margin-top: 50px; font-size: 0.85rem; }
+        .full-input { width: 100%; margin-bottom: 12px; padding: 12px; border: 1px solid #a0aec0; border-radius: 6px; box-sizing: border-box; }
+        .context-input { width: 160px; padding: 8px; border-radius: 4px; border: 1px solid #a0aec0; }
+        .sentence-row { margin-bottom: 15px; padding: 10px; border-bottom: 1px solid #edf2f7; display: flex; align-items: center; justify-content: space-between; }
     </style>
 </head>
 <body>
@@ -174,16 +174,17 @@
     
     <div class="header-section">
         <div class="uitleg">
-            <strong>Focus op werkwoordstammen op d en t:</strong><br>
-            • <strong>Tegenwoordige Tijd (TT):</strong> Stam + t. (Ik mel<strong>d</strong>, hij mel<strong>dt</strong>).<br>
-            • <strong>Verleden Tijd (VT):</strong> Stam + de/te. (Mel<strong>dde</strong>, wach<strong>tte</strong>, blus<strong>te</strong>).<br>
-            <em>Let op: Bij blussen is de stam 'blus'. De 's' zit in 't kofschip, dus +te!</em>
+            <strong>Focus op werkwoordstammen op d en t (+ blussen):</strong><br>
+            • <strong>TT:</strong> Stam + t. (Ik mel<strong>d</strong>, hij mel<strong>dt</strong>).<br>
+            • <strong>VT:</strong> Stam + de/te. (Mel<strong>dde</strong>, blus<strong>te</strong>).<br>
+            <em>Kijk goed naar de blussende agent hiernaast voor de juiste focus!</em>
         </div>
-        <img src="1740073406664.gif" alt="Instructie" class="header-gif">
+        <img src="1740073406664.gif" alt="Blussende agent" class="header-gif">
     </div>
 
     <div class="login-box">
-        Voornaam: <input type="text" id="firstName" placeholder="Naam..." style="width: 180px; padding: 8px;">
+        <strong>Inloggen:</strong><br><br>
+        Voornaam: <input type="text" id="firstName" placeholder="Typ je naam..." style="padding: 8px;">
         Klas: <select id="selectedClass" style="padding: 8px;">
             <option value="Delta">Delta</option><option value="Echo">Echo</option>
             <option value="Foxtrot">Foxtrot</option><option value="Lima">Lima</option>
@@ -192,12 +193,12 @@
     </div>
 
     <h2>Deel 1: De Stam-tabel</h2>
-    <table><thead><tr><th>Hele werkwoord</th><th>Ik (stam)</th><th>Hij (TT)</th><th>Verleden Tijd</th></tr></thead><tbody id="verb-body"></tbody></table>
+    <table><thead><tr><th>Hele werkwoord</th><th>Ik (stam)</th><th>Hij (TT)</th><th>Verleden Tijd (enkelv.)</th></tr></thead><tbody id="verb-body"></tbody></table>
 
-    <h2>Deel 2: Context Zinnen</h2>
+    <h2>Deel 2: Context Zinnen (Let op de instructies!)</h2>
     <div id="context-zinnen"></div>
 
-    <h2>Deel 3: Eigen PV-zinnen</h2>
+    <h2>Deel 3: Eigen PV-zinnen (10 stuks)</h2>
     <div id="eigen-zinnen">
         <input type="text" id="z1" class="full-input" placeholder="Zin 1">
         <input type="text" id="z2" class="full-input" placeholder="Zin 2">
@@ -211,21 +212,21 @@
         <input type="text" id="z10" class="full-input" placeholder="Zin 10">
     </div>
 
-    <button onclick="checkAndSave()" style="width: 100%; font-size: 1.1rem; padding: 15px; margin-top: 15px;">OPSLAAN</button>
+    <button onclick="checkAndSave()" style="width: 100%; margin-top: 10px;">OPSLAAN EN CONTROLEREN</button>
 
-    <hr style="margin: 40px 0;">
+    <hr style="margin: 50px 0;">
     <h2>Feedback Portaal</h2>
-    <div style="margin-bottom: 15px;">
+    <div style="margin-bottom: 20px;">
         <button onclick="loadResults('Delta')">Delta</button>
         <button onclick="loadResults('Echo')">Echo</button>
         <button onclick="loadResults('Foxtrot')">Foxtrot</button>
         <button onclick="loadResults('Lima')">Lima</button>
         <button onclick="loadResults('Mike')">Mike</button>
     </div>
-    <h3>Klas: <span id="viewing">...</span></h3>
+    <h3>Resultaten voor: <span id="viewing">...</span></h3>
     <div id="results">Kies een klas.</div>
 
-    <button onclick="hardReset()" class="btn-danger">Wis Klas Gegevens</button>
+    <button onclick="hardReset()" class="btn-danger">RESET KLAS (WIS DATA)</button>
 </div>
 </body>
 </html>
