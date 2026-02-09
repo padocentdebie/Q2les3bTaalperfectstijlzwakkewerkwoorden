@@ -94,7 +94,10 @@
             });
 
             const eigenZinnen = [];
-            for(let i=1; i<=10; i++) { eigenZinnen.push(document.getElementById(`z1-${i}`).value); }
+            for(let i=1; i<=10; i++) { 
+                const val = document.getElementById(`z1-${i}`).value;
+                eigenZinnen.push(val); 
+            }
 
             push(ref(db, 'werkwoorden/' + className), {
                 student: firstName,
@@ -102,7 +105,7 @@
                 zinnen: eigenZinnen,
                 feedback: null,
                 timestamp: Date.now()
-            }).then(() => alert(`Opgeslagen! Bedankt ${firstName}. Help nu een klasgenoot in het Feedback Portaal.`));
+            }).then(() => alert(`Opgeslagen! Bedankt ${firstName}. Je kunt nu feedback geven aan klasgenoten in het portaal.`));
         };
 
         window.loadResults = (c) => {
@@ -110,7 +113,7 @@
             onValue(ref(db, 'werkwoorden/' + c), (s) => {
                 const d = s.val();
                 const resDiv = document.getElementById('results');
-                resDiv.innerHTML = d ? "" : "Geen resultaten gevonden.";
+                resDiv.innerHTML = d ? "" : "Nog geen resultaten gevonden voor deze klas.";
                 for(let k in d) {
                     let fbHtml = d[k].feedback ? `<div class="feedback-box"><strong>Gekregen Feedback:</strong><br>${d[k].feedback.replace(/\n/g, '<br>')}</div>` : 
                         `<button onclick="openFeedback('${c}', '${k}')">Geef Feedback aan ${d[k].student}</button>`;
@@ -118,7 +121,7 @@
                     resDiv.innerHTML += `<div class="res-card">
                         <div class="card-header">Student: <strong>${d[k].student}</strong> (Score: ${d[k].score})</div>
                         <div class="student-sentences">
-                            <strong>Eigen Zinnen:</strong><br>
+                            <strong>Eigen PV-zinnen:</strong><br>
                             ${d[k].zinnen.map((z, i) => `<em>${i+1}:</em> ${z}`).join('<br>')}
                         </div>
                         ${fbHtml}
@@ -129,7 +132,7 @@
 
         window.openFeedback = (klas, id) => {
             const checklistTemplate = "CHECKLIST:\n[ ] Stam+t bij TT?\n[ ] Stam+de/te bij VT?\n[ ] Dubbel d/t gecheckt?\n\nTip: ";
-            const fb = prompt("Beoordeel je collega:", checklistTemplate);
+            const fb = prompt("Vul de feedback checklist in voor je collega:", checklistTemplate);
             if(fb && fb !== checklistTemplate) { 
                 update(ref(db, `werkwoorden/${klas}/${id}`), { feedback: fb }); 
             }
@@ -137,29 +140,34 @@
 
         window.hardReset = () => {
             const c = document.getElementById('viewing').innerText;
-            if(c === "...") return;
-            if(confirm(`DOCENT-CHECK: Klas ${c} echt wissen?`)) { 
-                remove(ref(db, 'werkwoorden/' + c)).then(() => alert("Data gewist."));
+            if(c === "...") { alert("Kies eerst een klas."); return; }
+            if(confirm(`WAARSCHUWING DOCENT: Weet je zeker dat je de data van klas ${c} wilt wissen? Doe dit alleen NA de bespreking!`)) { 
+                remove(ref(db, 'werkwoorden/' + c)).then(() => alert("Data is gewist."));
             }
         };
     </script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; }
-        .container { max-width: 1000px; margin: auto; background: #fff; padding: 30px; border-radius: 12px; border: 2px solid #003366; }
-        h1, h2 { background: #003366; color: white; padding: 12px; font-size: 1.2rem; border-radius: 6px; }
-        .instruction-box { background: #fff4e5; border-left: 5px solid #ffa500; padding: 15px; margin-bottom: 25px; }
-        .header-section { display: flex; gap: 20px; align-items: center; margin-bottom: 25px; background: #f9fbff; padding: 15px; border: 1px solid #d0d7de; border-radius: 10px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: auto; background: #fff; padding: 30px; border: 2px solid #003366; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1, h2 { background: #003366; color: white; padding: 12px; font-size: 1.2rem; border-radius: 6px; margin-top: 30px; }
+        h1 { margin-top: 0; text-align: center; }
+        .instruction-box { background: #fff4e5; border-left: 5px solid #ffa500; padding: 15px; margin-bottom: 25px; border-radius: 4px; line-height: 1.6; }
+        .header-section { display: flex; gap: 20px; align-items: center; margin-bottom: 25px; background: #f9fbff; padding: 15px; border-radius: 10px; border: 1px solid #d0d7de; }
+        .uitleg { flex: 1; font-size: 0.95rem; }
         .header-gif { width: 150px; border-radius: 8px; border: 2px solid #003366; }
         .login-box { background: #e7efff; padding: 15px; border-radius: 8px; margin-bottom: 25px; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         th, td { border: 1px solid #cbd5e0; padding: 10px; }
+        th { background: #edf2f7; }
         .correct { background: #c6f6d5 !important; }
         .incorrect { background: #fed7d7 !important; }
-        .res-card { border: 1px solid #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
+        .res-card { border: 1px solid #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; overflow: hidden; }
+        .card-header { background: #00336610; padding: 10px; font-weight: bold; }
+        .student-sentences { padding: 15px; font-size: 0.9rem; line-height: 1.6; }
         .feedback-box { background: #ebf8ff; padding: 12px; margin: 10px; border: 1px solid #bee3f8; border-radius: 6px; }
         button { background: #003366; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 6px; font-weight: bold; }
-        .full-input { width: 100%; margin-bottom: 10px; padding: 10px; border: 1px solid #a0aec0; border-radius: 6px; }
-        .context-input { width: 160px; padding: 6px; border: 1px solid #a0aec0; }
+        .full-input { width: 100%; margin-bottom: 10px; padding: 10px; border: 1px solid #a0aec0; border-radius: 6px; box-sizing: border-box; }
+        .context-input { width: 160px; padding: 6px; border-radius: 4px; border: 1px solid #a0aec0; }
         .sentence-row { padding: 10px; border-bottom: 1px solid #edf2f7; display: flex; align-items: center; justify-content: space-between; }
     </style>
 </head>
@@ -168,21 +176,24 @@
     <h1>Q2 les 3b Taalperfect werkwoordspelling</h1>
 
     <div class="instruction-box">
-        <strong>STAPPENPLAN:</strong><br>
-        1. Log in met je naam en klas.<br>
-        2. Vul de tabel en de zinnen in.<br>
-        3. Schrijf in deel 3 je eigen zinnen.<br>
-        4. Klik op OPSLAAN en kijk je fouten na.<br>
-        5. Geef feedback aan een klasgenoot onderaan bij het Feedback Portaal.
+        <strong>STAPPENPLAN VOOR DE STUDENT:</strong><br>
+        1. <strong>Inloggen:</strong> Vul je naam in en kies je klas.<br>
+        2. <strong>Deel 1 & 2:</strong> Vul de tabel en de zinnen in.<br>
+        3. <strong>Deel 3:</strong> Schrijf 10 eigen zinnen met de gevraagde onderwerpen en tijden.<br>
+        4. <strong>Opslaan:</strong> Klik op de knop. Je ziet direct wat goed (groen) of fout (rood) is.<br>
+        5. <strong>Feedback:</strong> Ga onderaan naar het Feedback Portaal, kies je klas en help een klasgenoot door feedback te geven op hun eigen zinnen.
     </div>
-
+    
     <div class="header-section">
-        <div style="flex:1"><strong>Focus:</strong> Stam + t (TT) of Stam + de/te (VT).<br>Let op dubbel d of t bij woorden als <em>landde</em> of <em>wachtte</em>!</div>
-        <img src="1740073406664.gif" class="header-gif">
+        <div class="uitleg">
+            <strong>Focus:</strong> Stam + t (TT) of Stam + de/te (VT).<br>
+            <em>Kijk goed naar de placeholders in de zinnen om te weten welke tijd en welk onderwerp je moet gebruiken!</em>
+        </div>
+        <img src="1740073406664.gif" alt="Blussen" class="header-gif">
     </div>
 
     <div class="login-box">
-        Voornaam: <input type="text" id="firstName" placeholder="Naam...">
+        Voornaam: <input type="text" id="firstName" placeholder="Typ je voornaam...">
         Klas: <select id="selectedClass"><option>Delta</option><option>Echo</option><option>Foxtrot</option><option>Lima</option><option>Mike</option></select>
     </div>
 
@@ -193,25 +204,34 @@
     <div id="context-zinnen"></div>
 
     <h2>Deel 3: Eigen PV-zinnen</h2>
-    <input type="text" id="z1-1" class="full-input" placeholder="Zin met: (melden, VT, de agent)">
-    <input type="text" id="z1-2" class="full-input" placeholder="Zin met: (beantwoorden, TT, de verdachte)">
-    <input type="text" id="z1-3" class="full-input" placeholder="Zin met: (misten, VT, het weer)">
-    <input type="text" id="z1-4" class="full-input" placeholder="Zin met: (blussen, VT, de brandweer)">
-    <input type="text" id="z1-5" class="full-input" placeholder="Zin met: (wachten, TT, de getuige)">
-    <input type="text" id="z1-6" class="full-input" placeholder="Zin met: (landen, VT, de traumaheli)">
-    <input type="text" id="z1-7" class="full-input" placeholder="Zin met: (branden, TT, de lamp)">
-    <input type="text" id="z1-8" class="full-input" placeholder="Zin met: (leiden, VT, de officier)">
-    <input type="text" id="z1-9" class="full-input" placeholder="Zin met: (vermoeden, TT, de inspecteur)">
-    <input type="text" id="z1-10" class="full-input" placeholder="Zin met: (pleiten, VT, de advocaat)">
+    <div id="eigen-zinnen">
+        <input type="text" id="z1-1" class="full-input" placeholder="Zin met: (melden, VT, de agent)">
+        <input type="text" id="z1-2" class="full-input" placeholder="Zin met: (beantwoorden, TT, de verdachte)">
+        <input type="text" id="z1-3" class="full-input" placeholder="Zin met: (misten, VT, het weer)">
+        <input type="text" id="z1-4" class="full-input" placeholder="Zin met: (blussen, VT, de brandweer)">
+        <input type="text" id="z1-5" class="full-input" placeholder="Zin met: (wachten, TT, de getuige)">
+        <input type="text" id="z1-6" class="full-input" placeholder="Zin met: (landen, VT, de traumaheli)">
+        <input type="text" id="z1-7" class="full-input" placeholder="Zin met: (branden, TT, de lamp)">
+        <input type="text" id="z1-8" class="full-input" placeholder="Zin met: (leiden, VT, de officier)">
+        <input type="text" id="z1-9" class="full-input" placeholder="Zin met: (vermoeden, TT, de rechercheur)">
+        <input type="text" id="z1-10" class="full-input" placeholder="Zin met: (pleiten, VT, de advocaat)">
+    </div>
 
-    <button onclick="checkAndSave()" style="width:100%">OPSLAAN & CONTROLEREN</button>
+    <button onclick="checkAndSave()" style="width: 100%; height: 50px; font-size: 1.1rem;">OPSLAAN & CONTROLEREN</button>
 
-    <hr style="margin:40px 0">
+    <hr style="margin: 50px 0;">
     <h2>Feedback Portaal</h2>
-    <button onclick="loadResults('Delta')">Delta</button> <button onclick="loadResults('Echo')">Echo</button> <button onclick="loadResults('Foxtrot')">Foxtrot</button> <button onclick="loadResults('Lima')">Lima</button> <button onclick="loadResults('Mike')">Mike</button>
-    <h3>Klas: <span id="viewing">...</span></h3>
-    <div id="results">Kies een klas.</div>
-    <button onclick="hardReset()" style="background:#e53e3e; margin-top:40px">DOCENT: WIS DATA</button>
+    <div style="margin-bottom: 20px;">
+        <button onclick="loadResults('Delta')">Delta</button>
+        <button onclick="loadResults('Echo')">Echo</button>
+        <button onclick="loadResults('Foxtrot')">Foxtrot</button>
+        <button onclick="loadResults('Lima')">Lima</button>
+        <button onclick="loadResults('Mike')">Mike</button>
+    </div>
+    <h3>Resultaten voor: <span id="viewing">...</span></h3>
+    <div id="results">Kies een klas om feedback te geven.</div>
+
+    <button onclick="hardReset()" style="background:#e53e3e; margin-top:50px; font-size: 0.8rem;">DOCENT: WIS DATA (PAS NA BESPREKING!)</button>
 </div>
 </body>
 </html>
