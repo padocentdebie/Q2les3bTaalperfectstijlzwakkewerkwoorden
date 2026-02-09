@@ -126,7 +126,16 @@
 
         window.hardReset = () => {
             const c = document.getElementById('viewing').innerText;
-            if(c !== "..." && confirm(`Data van klas ${c} wissen?`)) { remove(ref(db, 'werkwoorden/' + c)); }
+            if(c === "...") {
+                alert("Kies eerst een klas om te kunnen wissen.");
+                return;
+            }
+            const bevestiging = confirm(`GEVAAR: Weet je zeker dat je ALLE gegevens (namen, resultaten en feedback) van klas ${c} wilt wissen? Dit kan niet ongedaan worden gemaakt.`);
+            if(bevestiging) { 
+                remove(ref(db, 'werkwoorden/' + c))
+                .then(() => alert(`Data van klas ${c} is volledig gewist.`))
+                .catch((error) => alert("Fout bij wissen: " + error.message));
+            }
         };
     </script>
     <style>
@@ -148,6 +157,8 @@
         .feedback-box { background: #d9edf7; padding: 12px; margin: 10px; border: 1px solid #bce8f1; font-style: italic; border-radius: 4px; }
         button { background: #003366; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; }
         button:hover { background: #004488; }
+        .btn-danger { background: #cc0000; margin-top: 30px; font-size: 0.8rem; opacity: 0.7; }
+        .btn-danger:hover { background: #ff0000; opacity: 1; }
         .full-input { width: 98%; margin-bottom: 8px; padding: 10px; border: 1px solid #999; }
         .sentence-row { margin-bottom: 10px; padding: 5px; border-bottom: 1px solid #eee; }
     </style>
@@ -201,15 +212,19 @@
     <hr style="margin: 40px 0;">
 
     <h2>Feedback Portaal</h2>
-    <p>Klik op jouw klas om klasgenoten te helpen:</p>
-    <button onclick="loadResults('Delta')">Delta</button>
-    <button onclick="loadResults('Echo')">Echo</button>
-    <button onclick="loadResults('Foxtrot')">Foxtrot</button>
-    <button onclick="loadResults('Lima')">Lima</button>
-    <button onclick="loadResults('Mike')">Mike</button>
+    <p>Klik op de klas om resultaten te bekijken en feedback te geven:</p>
+    <div style="margin-bottom: 10px;">
+        <button onclick="loadResults('Delta')">Delta</button>
+        <button onclick="loadResults('Echo')">Echo</button>
+        <button onclick="loadResults('Foxtrot')">Foxtrot</button>
+        <button onclick="loadResults('Lima')">Lima</button>
+        <button onclick="loadResults('Mike')">Mike</button>
+    </div>
 
     <h3>Resultaten Klas: <span id="viewing">...</span></h3>
     <div id="results">Kies een klas om te beginnen.</div>
+
+    <button onclick="hardReset()" class="btn-danger">KLAS-GEGEVENS VOLLEDIG WISSEN (Hard Reset)</button>
 </div>
 </body>
 </html>
