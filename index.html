@@ -26,44 +26,20 @@
             ["rusten", "rust", "rust", "rustte"], ["wachten", "wacht", "wacht", "wachtte"],
             ["landen", "land", "landt", "landde"], ["branden", "brand", "brandt", "brandde"],
             ["leiden", "leid", "leidt", "leidde"], ["zetten", "zet", "zet", "zette"],
-            ["vermoeden", "vermoed", "vermoedt", "vermoedde"], ["pleiten", "pleit", "pleit", "pleitte"],
-            ["stoten", "stoot", "stoot", "stootte"], ["schudden", "schud", "schudt", "schudde"],
-            ["laden", "laad", "laadt", "laadde"], ["planten", "plant", "plant", "plantte"],
-            ["bloeden", "bloed", "bloedt", "bloedde"], ["starten", "start", "start", "startte"],
-            ["bereiden", "bereid", "bereidt", "bereidde"], ["begroeten", "begroet", "begroet", "begroette"],
-            ["aanvaarden", "aanvaard", "aanvaardt", "aanvaardde"], ["achten", "acht", "acht", "achtte"],
-            ["maken", "maak", "maakt", "maakte"], ["pakken", "pak", "pakt", "pakte"],
-            ["bellen", "bel", "belt", "belde"], ["stoppen", "stop", "stopt", "stopte"],
-            ["horen", "hoor", "hoort", "hoorde"]
+            ["vermoeden", "vermoed", "vermoedt", "vermoedde"], ["pleiten", "pleit", "pleit", "pleitte"]
         ];
 
         const contextZinnen = [
-            { q: "De agent (melden) _____ het incident via de porto.", a: "hoort" }, // Let op: Tabel mix
-            { q: "De agent (melden) _____ het incident.", a: "meldt" },
-            { q: "Gisteren (beantwoorden) _____ de verdachte geen enkele vraag.", a: "beantwoordde" },
-            { q: "Waarom (melden) _____ jij die diefstal niet meteen?", a: "meld" },
-            { q: "De officier (leiden) _____ gisteren de zoeking.", a: "leidde" },
-            { q: "De verdachte (zetten) _____ gisteren een stap achteruit.", a: "zette" },
-            { q: "De rechercheur (vermoeden) _____ gisteren al dat er opzet was.", a: "vermoedde" },
-            { q: "Jij (beantwoorden) _____ de vragen van de burger heel netjes.", a: "beantwoordt" },
-            { q: "(Wachten) _____ jij al lang op de back-up?", a: "wacht" },
-            { q: "De getuige (schudden) _____ gisteren alleen haar hoofd.", a: "schudde" },
-            { q: "Vannacht (branden) _____ er een licht in het pand.", a: "brandde" },
-            { q: "Het slachtoffer (bloeden) _____ gisteren uit een hoofdwond.", a: "bloedde" },
-            { q: "Wanneer (starten) _____ jij morgen met je surveillance?", a: "start" },
-            { q: "De agent (beantwoorden) _____ de oproep direct.", a: "beantwoordt" },
-            { q: "Gisteren (landen) _____ de traumahelikopter op de snelweg.", a: "landde" },
-            { q: "De verdachte (pleiten) _____ gisteren onschuldig.", a: "pleitte" },
-            { q: "Jij (leiden) _____ de stagiair vandaag rond.", a: "leidt" },
-            { q: "(Zetten) _____ jij de handboeien even om?", a: "zet" },
-            { q: "De advocaat (aanvaarden) _____ het schikkingsvoorstel.", a: "aanvaardt" },
-            { q: "Wij (wachten) _____ gisteren op de komst van de officier.", a: "wachtten" },
-            { q: "De auto (stoten) _____ gisteren tegen het paaltje.", a: "stootte" },
-            { q: "De centralist (melden) _____ de locatie van de verdachte.", a: "meldt" },
-            { q: "Gisteren (laden) _____ wij de inbeslagnomen goederen in.", a: "laadden" },
-            { q: "Het vuur (branden) _____ gisteren urenlang door.", a: "brandde" },
-            { q: "De hond (beantwoorden) _____ het commando direct.", a: "beantwoordt" },
-            { q: "Jij (starten) _____ gisteren de motor te laat.", a: "startte" }
+            { q: "De agent (melden) _____ het incident nu via de porto.", a: "meldt" },
+            { q: "Gisteren (beantwoorden) _____ de verdachte de vraag niet.", a: "beantwoordde" },
+            { q: "De officier (leiden) _____ vorig jaar het onderzoek.", a: "leidde" },
+            { q: "Jij (wachten) _____ gisteren te lang op assistentie.", a: "wachtte" },
+            { q: "De verdachte (vermoeden) _____ destijds al een valstrik.", a: "vermoedde" },
+            { q: "De rechercheur (beantwoorden) _____ op dit moment de mail.", a: "beantwoordt" },
+            { q: "Vorig jaar (landen) _____ de helikopter in het park.", a: "landde" },
+            { q: "De agent (zetten) _____ de handboeien gisteren strak aan.", a: "zette" },
+            { q: "De verdachte (pleiten) _____ zojuist onschuldig.", a: "pleit" },
+            { q: "Gisteren (branden) _____ er nog licht in de verhoorkamer.", a: "brandde" }
         ];
 
         window.onload = () => {
@@ -96,7 +72,7 @@
         window.checkAndSave = function() {
             const className = document.getElementById('selectedClass').value;
             const firstName = document.getElementById('firstName').value;
-            if(!className || !firstName) { alert("Voornaam en klas zijn verplicht."); return; }
+            if(!firstName) { alert("Vul je voornaam in!"); return; }
 
             let correct = 0; let total = 0;
             document.querySelectorAll('input[data-correct]').forEach(input => {
@@ -115,7 +91,7 @@
                 zinnen: eigenZinnen,
                 feedback: null,
                 timestamp: Date.now()
-            }).then(() => alert(`Opgeslagen! Deel dit nu met je klasgenoten voor feedback.`));
+            }).then(() => alert(`Goed gedaan ${firstName}! Je werk is opgeslagen.`));
         };
 
         window.loadResults = (c) => {
@@ -125,13 +101,13 @@
                 const resDiv = document.getElementById('results');
                 resDiv.innerHTML = d ? "" : "Nog geen resultaten.";
                 for(let k in d) {
-                    let fbHtml = d[k].feedback ? `<div class="feedback-box"><strong>Feedback:</strong> ${d[k].feedback}</div>` : 
+                    let fbHtml = d[k].feedback ? `<div class="feedback-box"><strong>Feedback:</strong><br>${d[k].feedback.replace(/\n/g, '<br>')}</div>` : 
                         `<button onclick="openFeedback('${c}', '${k}')">Geef Feedback aan ${d[k].student}</button>`;
                     
                     resDiv.innerHTML += `<div class="res-card">
                         <div class="card-header">Student: <strong>${d[k].student}</strong> (Score: ${d[k].score})</div>
                         <div class="student-sentences">
-                            <strong>Eigen PV-Zinnen:</strong><br>
+                            <strong>Eigen Zinnen:</strong><br>
                             ${d[k].zinnen.map((z, i) => `<em>${i+1}:</em> ${z}`).join('<br>')}
                         </div>
                         ${fbHtml}
@@ -141,8 +117,11 @@
         };
 
         window.openFeedback = (klas, id) => {
-            const fb = prompt("Controleer op d/t:\n1. Ik-vorm = stam?\n2. TT (hij) = stam + t (dt of tt)?\n3. VT = stam + de of te (dubbel d of t)?\n\nTyp feedback:");
-            if(fb) { update(ref(db, `werkwoorden/${klas}/${id}`), { feedback: fb }); }
+            const checklistTemplate = "CHECKLIST:\n[ ] Stam+t bij TT gebruikt?\n[ ] Stam+de/te bij VT gebruikt?\n[ ] Dubbel d/t gecheckt?\n\nTip: ";
+            const fb = prompt("Typ 'X' bij wat goed is en geef een tip:", checklistTemplate);
+            if(fb && fb !== checklistTemplate) { 
+                update(ref(db, `werkwoorden/${klas}/${id}`), { feedback: fb }); 
+            }
         };
 
         window.hardReset = () => {
@@ -152,23 +131,25 @@
     </script>
     <style>
         body { font-family: 'Arial', sans-serif; background: #f4f4f4; padding: 20px; }
-        .container { max-width: 1000px; margin: auto; background: #fff; padding: 25px; border: 2px solid #003366; }
-        h1, h2 { background: #003366; color: white; padding: 10px; font-size: 1.1rem; }
-        
-        /* Flexbox voor tekst en GIF naast elkaar */
+        .container { max-width: 1000px; margin: auto; background: #fff; padding: 25px; border: 2px solid #003366; box-shadow: 5px 5px 15px rgba(0,0,0,0.1); }
+        h1, h2 { background: #003366; color: white; padding: 10px; font-size: 1.1rem; border-radius: 4px; }
         .header-section { display: flex; gap: 20px; align-items: center; margin-bottom: 20px; }
         .uitleg { flex: 1; background: #eef; border-left: 5px solid #003366; padding: 15px; font-size: 0.9rem; }
-        .header-gif { width: 150px; height: auto; border: 1px solid #ccc; }
-
+        .header-gif { width: 150px; height: auto; border: 1px solid #ccc; border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { border: 1px solid #ccc; padding: 8px; font-size: 0.85rem; }
-        .correct { background: #dff0d8 !important; }
-        .incorrect { background: #f2dede !important; }
-        .res-card { border: 1px solid #003366; margin: 10px 0; background: #fafafa; }
-        .student-sentences { padding: 10px; font-size: 0.85rem; }
-        .feedback-box { background: #d9edf7; padding: 10px; margin: 10px; border: 1px solid #bce8f1; font-style: italic; }
-        button { background: #003366; color: white; border: none; padding: 10px; cursor: pointer; }
-        .full-input { width: 100%; margin-bottom: 5px; padding: 8px; border: 1px solid #999; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background: #f0f0f0; }
+        input[type="text"] { width: 90%; padding: 5px; border: 1px solid #ccc; }
+        .correct { background: #dff0d8 !important; border-color: #3c763d; }
+        .incorrect { background: #f2dede !important; border-color: #a94442; }
+        .res-card { border: 1px solid #003366; margin: 15px 0; background: #fafafa; border-radius: 5px; }
+        .card-header { background: #00336610; padding: 8px; border-bottom: 1px solid #00336630; }
+        .student-sentences { padding: 12px; font-size: 0.85rem; line-height: 1.4; }
+        .feedback-box { background: #d9edf7; padding: 12px; margin: 10px; border: 1px solid #bce8f1; font-style: italic; border-radius: 4px; }
+        button { background: #003366; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; }
+        button:hover { background: #004488; }
+        .full-input { width: 98%; margin-bottom: 8px; padding: 10px; border: 1px solid #999; }
+        .sentence-row { margin-bottom: 10px; padding: 5px; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
@@ -178,20 +159,57 @@
     <div class="header-section">
         <div class="uitleg">
             <strong>De d/t focus:</strong><br>
-            - <strong>TT:</strong> Ik mel<strong>d</strong> -> Hij mel<strong>dt</strong> (stam+t). | Ik wach<strong>t</strong> -> Hij wach<strong>t</strong> (stam+t = tt, maar we schrijven er één).<br>
-            - <strong>VT:</strong> Stam + <strong>de</strong> (mel<strong>dde</strong>) of Stam + <strong>te</strong> (wach<strong>tte</strong>). Let op de dubbele letters!
+            - <strong>Tegenwoordige Tijd:</strong> Ik mel<strong>d</strong> -> Hij mel<strong>dt</strong> (stam+t).<br>
+            - <strong>Verleden Tijd:</strong> Stam + <strong>de</strong> (mel<strong>dde</strong>) of Stam + <strong>te</strong> (wach<strong>tte</strong>). Let op de dubbele letters!
         </div>
-        <img src="hasici.gif" alt="Instructie Animatie" class="header-gif">
+        <img src="1740073406664.gif" alt="Instructie Animatie" class="header-gif">
     </div>
 
-    <div style="margin-bottom:20px;">
-        Voornaam: <input type="text" id="firstName">
-        Klas: <select id="selectedClass">
+    <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <strong>Inloggen:</strong><br><br>
+        Voornaam: <input type="text" id="firstName" placeholder="Typ je voornaam..." style="width: 200px;">
+        Klas: <select id="selectedClass" style="padding: 5px;">
             <option value="Delta">Delta</option><option value="Echo">Echo</option>
             <option value="Foxtrot">Foxtrot</option><option value="Lima">Lima</option>
             <option value="Mike">Mike</option>
         </select>
     </div>
 
-    <h2>Deel 1: Tabel (Focus op d/t stammen)</h2>
-    <table><thead><tr><th>Hele werkwoord</th><th>Ik (stam)</th><th>Hij (TT)</th><th>Verleden Tijd</th></tr></thead><tbody id="verb-body"></tbody>
+    <h2>Deel 1: De Stam-tabel</h2>
+    <table><thead><tr><th>Hele werkwoord</th><th>Ik (stam)</th><th>Hij (TT)</th><th>Verleden Tijd (enkelvoud)</th></tr></thead><tbody id="verb-body"></tbody></table>
+
+    <h2>Deel 2: Context Zinnen (TT en VT mix)</h2>
+    <div id="context-zinnen"></div>
+
+    <h2>Deel 3: Eigen PV-zinnen</h2>
+    <p><small>Schrijf 10 zinnen. Wissel af tussen VT en TT.</small></p>
+    <div id="eigen-zinnen">
+        <input type="text" id="z1" class="full-input" placeholder="Zin 1">
+        <input type="text" id="z2" class="full-input" placeholder="Zin 2">
+        <input type="text" id="z3" class="full-input" placeholder="Zin 3">
+        <input type="text" id="z4" class="full-input" placeholder="Zin 4">
+        <input type="text" id="z5" class="full-input" placeholder="Zin 5">
+        <input type="text" id="z6" class="full-input" placeholder="Zin 6">
+        <input type="text" id="z7" class="full-input" placeholder="Zin 7">
+        <input type="text" id="z8" class="full-input" placeholder="Zin 8">
+        <input type="text" id="z9" class="full-input" placeholder="Zin 9">
+        <input type="text" id="z10" class="full-input" placeholder="Zin 10">
+    </div>
+
+    <button onclick="checkAndSave()" style="width: 100%; font-size: 1.2rem; font-weight: bold; margin-top: 20px;">OPSLAAN EN CONTROLEREN</button>
+
+    <hr style="margin: 40px 0;">
+
+    <h2>Feedback Portaal</h2>
+    <p>Klik op jouw klas om klasgenoten te helpen:</p>
+    <button onclick="loadResults('Delta')">Delta</button>
+    <button onclick="loadResults('Echo')">Echo</button>
+    <button onclick="loadResults('Foxtrot')">Foxtrot</button>
+    <button onclick="loadResults('Lima')">Lima</button>
+    <button onclick="loadResults('Mike')">Mike</button>
+
+    <h3>Resultaten Klas: <span id="viewing">...</span></h3>
+    <div id="results">Kies een klas om te beginnen.</div>
+</div>
+</body>
+</html>
