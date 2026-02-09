@@ -4,148 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Q2 les 3b Taalperfect werkwoordspelling</title>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCJ5of6K5MRFXMOiEqEyZxZbs1xoJtXuN8",
-            authDomain: "pvaangifteinleveren.firebaseapp.com",
-            databaseURL: "https://pvaangifteinleveren-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "pvaangifteinleveren",
-            storageBucket: "pvaangifteinleveren.firebasestorage.app",
-            messagingSenderId: "989190242332",
-            appId: "1:989190242332:web:867ea95845325cf9835fd9"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        const werkwoordenTabel = [
-            ["melden", "meld", "meldt", "meldde"], 
-            ["beantwoorden", "beantwoord", "beantwoordt", "beantwoordde"],
-            ["misten", "mist", "mist", "mistte"],
-            ["blussen", "blus", "blust", "bluste"],
-            ["rusten", "rust", "rust", "rustte"], 
-            ["wachten", "wacht", "wacht", "wachtte"],
-            ["landen", "land", "landt", "landde"], 
-            ["branden", "brand", "brandt", "brandde"],
-            ["leiden", "leid", "leidt", "leidde"], 
-            ["zetten", "zet", "zet", "zette"],
-            ["vermoeden", "vermoed", "vermoedt", "vermoedde"], 
-            ["pleiten", "pleit", "pleit", "pleitte"]
-        ];
-
-        const contextZinnen = [
-            { q: "De agent (melden, TT, de agent) _____ het incident nu via de porto.", a: "meldt" },
-            { q: "Gisteren (beantwoorden, VT, de verdachte) _____ de vraag niet.", a: "beantwoordde" },
-            { q: "Toen we de snelweg opreden (misten, VT, het weer) _____ het heel erg.", a: "mistte" },
-            { q: "De brandweer (blussen, VT, de brandweerman) _____ de brand gisteravond snel.", a: "bluste" },
-            { q: "De officier (leiden, VT, de officier) _____ vorig jaar het onderzoek.", a: "leidde" },
-            { q: "Ik (wachten, TT, ik) _____ al een uur op de back-up.", a: "wacht" },
-            { q: "Jij (wachten, VT, jij) _____ gisteren te lang op assistentie.", a: "wachtte" },
-            { q: "De verdachte (vermoeden, VT, de man) _____ destijds al een valstrik.", a: "vermoedde" },
-            { q: "De rechercheur (beantwoorden, TT, de rechercheur) _____ op dit moment de mail.", a: "beantwoordt" },
-            { q: "Vorig jaar (landen, VT, de helikopter) _____ in het park.", a: "landde" },
-            { q: "De agent (zetten, VT, de agent) _____ de handboeien gisteren strak aan.", a: "zette" },
-            { q: "De verdachte (pleiten, TT, de advocaat) _____ zojuist onschuldig.", a: "pleit" },
-            { q: "Gisteren (branden, VT, het licht) _____ er nog in de verhoorkamer.", a: "brandde" },
-            { q: "Ik (melden, TT, ik) _____ mij morgen bij de hoofdinspecteur.", a: "meld" }
-        ];
-
-        window.onload = () => {
-            const tbody = document.getElementById('verb-body');
-            werkwoordenTabel.forEach((rij, i) => {
-                const tr = document.createElement('tr');
-                const showIndex = Math.floor(Math.random() * 4);
-                rij.forEach((woord, j) => {
-                    const td = document.createElement('td');
-                    if (j === showIndex) { td.innerText = woord; td.className = "fixed-word"; }
-                    else {
-                        const input = document.createElement('input');
-                        input.type = "text"; input.id = `v-${i}-${j}`; input.dataset.correct = woord;
-                        td.appendChild(input);
-                    }
-                    tr.appendChild(td);
-                });
-                tbody.appendChild(tr);
-            });
-
-            const zinContainer = document.getElementById('context-zinnen');
-            contextZinnen.forEach((item, i) => {
-                const div = document.createElement('div');
-                div.className = "sentence-row";
-                div.innerHTML = `<span>${i+1}. ${item.q}</span> <input type="text" id="c-${i}" data-correct="${item.a}" class="context-input">`;
-                zinContainer.appendChild(div);
-            });
-        };
-
-        window.checkAndSave = function() {
-            const className = document.getElementById('selectedClass').value;
-            const firstName = document.getElementById('firstName').value;
-            if(!firstName) { alert("Vul eerst je voornaam in!"); return; }
-
-            let correct = 0; let total = 0;
-            document.querySelectorAll('input[data-correct]').forEach(input => {
-                total++;
-                if (input.value.trim().toLowerCase() === input.dataset.correct) {
-                    input.className = "correct"; correct++;
-                } else { input.className = "incorrect"; }
-            });
-
-            const eigenZinnen = [];
-            for(let i=1; i<=10; i++) { 
-                const val = document.getElementById(`z1-${i}`).value;
-                eigenZinnen.push(val); 
-            }
-
-            push(ref(db, 'werkwoorden/' + className), {
-                student: firstName,
-                score: `${correct}/${total}`,
-                zinnen: eigenZinnen,
-                feedback: null,
-                timestamp: Date.now()
-            }).then(() => alert(`Opgeslagen! Bedankt ${firstName}. Je kunt nu feedback geven aan klasgenoten in het portaal.`));
-        };
-
-        window.loadResults = (c) => {
-            document.getElementById('viewing').innerText = c;
-            onValue(ref(db, 'werkwoorden/' + c), (s) => {
-                const d = s.val();
-                const resDiv = document.getElementById('results');
-                resDiv.innerHTML = d ? "" : "Nog geen resultaten gevonden voor deze klas.";
-                for(let k in d) {
-                    let fbHtml = d[k].feedback ? `<div class="feedback-box"><strong>Gekregen Feedback:</strong><br>${d[k].feedback.replace(/\n/g, '<br>')}</div>` : 
-                        `<button onclick="openFeedback('${c}', '${k}')">Geef Feedback aan ${d[k].student}</button>`;
-                    
-                    resDiv.innerHTML += `<div class="res-card">
-                        <div class="card-header">Student: <strong>${d[k].student}</strong> (Score: ${d[k].score})</div>
-                        <div class="student-sentences">
-                            <strong>Eigen PV-zinnen:</strong><br>
-                            ${d[k].zinnen.map((z, i) => `<em>${i+1}:</em> ${z}`).join('<br>')}
-                        </div>
-                        ${fbHtml}
-                    </div>`;
-                }
-            });
-        };
-
-        window.openFeedback = (klas, id) => {
-            const checklistTemplate = "CHECKLIST:\n[ ] Stam+t bij TT?\n[ ] Stam+de/te bij VT?\n[ ] Dubbel d/t gecheckt?\n\nTip: ";
-            const fb = prompt("Vul de feedback checklist in voor je collega:", checklistTemplate);
-            if(fb && fb !== checklistTemplate) { 
-                update(ref(db, `werkwoorden/${klas}/${id}`), { feedback: fb }); 
-            }
-        };
-
-        window.hardReset = () => {
-            const c = document.getElementById('viewing').innerText;
-            if(c === "...") { alert("Kies eerst een klas."); return; }
-            if(confirm(`WAARSCHUWING DOCENT: Weet je zeker dat je de data van klas ${c} wilt wissen? Doe dit alleen NA de bespreking!`)) { 
-                remove(ref(db, 'werkwoorden/' + c)).then(() => alert("Data is gewist."));
-            }
-        };
-    </script>
+    
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
         .container { max-width: 1000px; margin: auto; background: #fff; padding: 30px; border: 2px solid #003366; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -159,19 +18,22 @@
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         th, td { border: 1px solid #cbd5e0; padding: 10px; }
         th { background: #edf2f7; }
-        .correct { background: #c6f6d5 !important; }
-        .incorrect { background: #fed7d7 !important; }
+        .correct { background: #c6f6d5 !important; border: 2px solid #28a745 !important; }
+        .incorrect { background: #fed7d7 !important; border: 2px solid #dc3545 !important; }
         .res-card { border: 1px solid #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; overflow: hidden; }
-        .card-header { background: #00336610; padding: 10px; font-weight: bold; }
-        .student-sentences { padding: 15px; font-size: 0.9rem; line-height: 1.6; }
-        .feedback-box { background: #ebf8ff; padding: 12px; margin: 10px; border: 1px solid #bee3f8; border-radius: 6px; }
-        button { background: #003366; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 6px; font-weight: bold; }
+        .card-header { background: #00336610; padding: 10px; font-weight: bold; display: flex; justify-content: space-between; }
+        .student-sentences { padding: 15px; font-size: 0.9rem; line-height: 1.6; background: white; }
+        .feedback-box { background: #ebf8ff; padding: 12px; margin: 10px; border: 1px solid #bee3f8; border-radius: 6px; font-style: italic; }
+        button { background: #003366; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 6px; font-weight: bold; transition: 0.2s; }
+        button:hover { background: #004a94; }
         .full-input { width: 100%; margin-bottom: 10px; padding: 10px; border: 1px solid #a0aec0; border-radius: 6px; box-sizing: border-box; }
         .context-input { width: 160px; padding: 6px; border-radius: 4px; border: 1px solid #a0aec0; }
         .sentence-row { padding: 10px; border-bottom: 1px solid #edf2f7; display: flex; align-items: center; justify-content: space-between; }
+        .fixed-word { font-weight: bold; background: #f8f9fa; }
     </style>
 </head>
 <body>
+
 <div class="container">
     <h1>Q2 les 3b Taalperfect werkwoordspelling</h1>
 
@@ -181,7 +43,7 @@
         2. <strong>Deel 1 & 2:</strong> Vul de tabel en de zinnen in.<br>
         3. <strong>Deel 3:</strong> Schrijf 10 eigen zinnen met de gevraagde onderwerpen en tijden.<br>
         4. <strong>Opslaan:</strong> Klik op de knop. Je ziet direct wat goed (groen) of fout (rood) is.<br>
-        5. <strong>Feedback:</strong> Ga onderaan naar het Feedback Portaal, kies je klas en help een klasgenoot door feedback te geven op hun eigen zinnen.
+        5. <strong>Feedback:</strong> Ga onderaan naar het Feedback Portaal, kies je klas en help een klasgenoot door feedback te geven.
     </div>
     
     <div class="header-section">
@@ -233,5 +95,160 @@
 
     <button onclick="hardReset()" style="background:#e53e3e; margin-top:50px; font-size: 0.8rem;">DOCENT: WIS DATA (PAS NA BESPREKING!)</button>
 </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCJ5of6K5MRFXMOiEqEyZxZbs1xoJtXuN8",
+        authDomain: "pvaangifteinleveren.firebaseapp.com",
+        databaseURL: "https://pvaangifteinleveren-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "pvaangifteinleveren",
+        storageBucket: "pvaangifteinleveren.firebasestorage.app",
+        messagingSenderId: "989190242332",
+        appId: "1:989190242332:web:867ea95845325cf9835fd9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const werkwoordenTabel = [
+        ["melden", "meld", "meldt", "meldde"], 
+        ["beantwoorden", "beantwoord", "beantwoordt", "beantwoordde"],
+        ["misten", "mist", "mist", "mistte"],
+        ["blussen", "blus", "blust", "bluste"],
+        ["rusten", "rust", "rust", "rustte"], 
+        ["wachten", "wacht", "wacht", "wachtte"],
+        ["landen", "land", "landt", "landde"], 
+        ["branden", "brand", "brandt", "brandde"],
+        ["leiden", "leid", "leidt", "leidde"], 
+        ["zetten", "zet", "zet", "zette"],
+        ["vermoeden", "vermoed", "vermoedt", "vermoedde"], 
+        ["pleiten", "pleit", "pleit", "pleitte"]
+    ];
+
+    const contextZinnen = [
+        { q: "De agent (melden, TT, de agent) _____ het incident nu via de porto.", a: "meldt" },
+        { q: "Gisteren (beantwoorden, VT, de verdachte) _____ de vraag niet.", a: "beantwoordde" },
+        { q: "Toen we de snelweg opreden (misten, VT, het weer) _____ het heel erg.", a: "mistte" },
+        { q: "De brandweer (blussen, VT, de brandweerman) _____ de brand gisteravond snel.", a: "bluste" },
+        { q: "De officier (leiden, VT, de officier) _____ vorig jaar het onderzoek.", a: "leidde" },
+        { q: "Ik (wachten, TT, ik) _____ al een uur op de back-up.", a: "wacht" },
+        { q: "Jij (wachten, VT, jij) _____ gisteren te lang op assistentie.", a: "wachtte" },
+        { q: "De verdachte (vermoeden, VT, de man) _____ destijds al een valstrik.", a: "vermoedde" },
+        { q: "De rechercheur (beantwoorden, TT, de rechercheur) _____ op dit moment de mail.", a: "beantwoordt" },
+        { q: "Vorig jaar (landen, VT, de helikopter) _____ in het park.", a: "landde" },
+        { q: "De agent (zetten, VT, de agent) _____ de handboeien gisteren strak aan.", a: "zette" },
+        { q: "De verdachte (pleiten, TT, de advocaat) _____ zojuist onschuldig.", a: "pleit" },
+        { q: "Gisteren (branden, VT, het licht) _____ er nog in de verhoorkamer.", a: "brandde" },
+        { q: "Ik (melden, TT, ik) _____ mij morgen bij de hoofdinspecteur.", a: "meld" }
+    ];
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const tbody = document.getElementById('verb-body');
+        werkwoordenTabel.forEach((rij, i) => {
+            const tr = document.createElement('tr');
+            const showIndex = Math.floor(Math.random() * 4);
+            rij.forEach((woord, j) => {
+                const td = document.createElement('td');
+                if (j === showIndex) { td.innerText = woord; td.className = "fixed-word"; }
+                else {
+                    const input = document.createElement('input');
+                    input.type = "text"; input.id = `v-${i}-${j}`; input.dataset.correct = woord;
+                    td.appendChild(input);
+                }
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+
+        const zinContainer = document.getElementById('context-zinnen');
+        contextZinnen.forEach((item, i) => {
+            const div = document.createElement('div');
+            div.className = "sentence-row";
+            div.innerHTML = `<span>${i+1}. ${item.q}</span> <input type="text" id="c-${i}" data-correct="${item.a}" class="context-input">`;
+            zinContainer.appendChild(div);
+        });
+    });
+
+    window.checkAndSave = function() {
+        const className = document.getElementById('selectedClass').value;
+        const firstName = document.getElementById('firstName').value.trim();
+        if(!firstName) { alert("Vul eerst je voornaam in!"); return; }
+
+        let correct = 0; let total = 0;
+        document.querySelectorAll('input[data-correct]').forEach(input => {
+            total++;
+            if (input.value.trim().toLowerCase() === input.dataset.correct.toLowerCase()) {
+                input.className = "correct"; correct++;
+            } else { input.className = "incorrect"; }
+        });
+
+        const eigenZinnen = [];
+        for(let i=1; i<=10; i++) { 
+            const val = document.getElementById(`z1-${i}`).value.trim();
+            eigenZinnen.push(val || "---"); 
+        }
+
+        push(ref(db, 'werkwoorden/' + className), {
+            student: firstName,
+            score: `${correct}/${total}`,
+            zinnen: eigenZinnen,
+            feedback: null,
+            timestamp: Date.now()
+        }).then(() => alert(`Opgeslagen! Bedankt ${firstName}. Je kunt nu feedback geven onderaan.`));
+    };
+
+    window.loadResults = (c) => {
+        document.getElementById('viewing').innerText = c;
+        const resDiv = document.getElementById('results');
+        resDiv.innerHTML = "Laden...";
+
+        onValue(ref(db, 'werkwoorden/' + c), (snapshot) => {
+            const data = snapshot.val();
+            resDiv.innerHTML = data ? "" : "Nog geen resultaten gevonden voor deze klas.";
+            
+            if(data) {
+                Object.keys(data).forEach(k => {
+                    const item = data[k];
+                    let fbHtml = item.feedback ? 
+                        `<div class="feedback-box"><strong>Gekregen Feedback:</strong><br>${item.feedback.replace(/\n/g, '<br>')}</div>` : 
+                        `<button style="margin:10px;" onclick="openFeedback('${c}', '${k}')">Geef Feedback aan ${item.student}</button>`;
+                    
+                    resDiv.innerHTML += `
+                        <div class="res-card">
+                            <div class="card-header">
+                                <span>Student: ${item.student}</span>
+                                <span>Score: ${item.score}</span>
+                            </div>
+                            <div class="student-sentences">
+                                <strong>Eigen PV-zinnen:</strong><br>
+                                ${item.zinnen.map((z, i) => `<em>${i+1}:</em> ${z}`).join('<br>')}
+                            </div>
+                            ${fbHtml}
+                        </div>`;
+                });
+            }
+        });
+    };
+
+    window.openFeedback = (klas, id) => {
+        const template = "CHECKLIST:\n[ ] Stam+t bij TT?\n[ ] Stam+de/te bij VT?\n[ ] Dubbel d/t gecheckt?\n\nTip: ";
+        const fb = prompt("Vul de feedback in voor je collega:", template);
+        if(fb && fb !== template) { 
+            update(ref(db, `werkwoorden/${klas}/${id}`), { feedback: fb }); 
+        }
+    };
+
+    window.hardReset = () => {
+        const c = document.getElementById('viewing').innerText;
+        if(c === "...") { alert("Kies eerst een klas."); return; }
+        if(confirm(`WAARSCHUWING: Data van klas ${c} wissen?`)) { 
+            remove(ref(db, 'werkwoorden/' + c)).then(() => alert("Data gewist."));
+        }
+    };
+</script>
+
 </body>
 </html>
